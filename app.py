@@ -158,10 +158,11 @@ def main():
     # Introduction text with border
     st.markdown("""
     <div class="description">
-        <p>Welcome to the Loan Status Prediction Application. This tool is designed to help you 
-        understand the likelihood of a loan being approved based on various factors such as 
-        age, income, employment history, and more. Simply adjust the parameters in the sidebar 
-        to match your details and click 'Predict' to see the outcome.</p>
+<p>Welcome to the Credit Risk Prediction Application. 
+This tool is designed to help you understand the likelihood of a loan defaulting based on various factors 
+such as age, income, employment history, and more. Simply adjust the parameters in the sidebar 
+to match your details and click 'Predict' to see the outcome.</p>
+
     </div>
     """, unsafe_allow_html=True)
 
