@@ -138,7 +138,7 @@ def main():
 
         # Display the prediction with styling
         st.subheader("Prediction Result")
-        st.write(f"The probability that you'll have \"something\" is {probability_text}. You have a {risk_level} credit risk.")
+        st.write(f"The probability that you'll have high credit risk is {probability_text}. You have a {risk_level} credit risk.")
 
     # Custom Styling with a border for the description
     st.markdown("""
