@@ -152,33 +152,11 @@ def main():
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 20px;
-        }
-    st.markdown("""
-        <style>
-        .main {
-            background-color: #000000;
-        }
-        .description {
-            border: 1px solid #4F8BF9;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 20px;
+            color: #FFFFFF; /* White font color */
         }
         body {
             color: #FFFFFF; /* White font color */
         }
-        </style>
-        """, unsafe_allow_html=True)
-
-    # Introduction text with border
-    st.markdown("""
-    <div class="description">
-        <p>Welcome to the Credit Risk Prediction Application. 
-        This tool is designed to help you understand the likelihood of a loan defaulting based on various factors such as age, 
-        income, employment history, and more. 
-        Simply adjust the parameters in the sidebar to match your details and click 'Predict' to see the outcome.</p>
-    </div>
-    """, unsafe_allow_html=True)
         </style>
         """, unsafe_allow_html=True)
 
