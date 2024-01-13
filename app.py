@@ -125,21 +125,25 @@ def main():
     # Layout for the Predict button and prediction display in the main area
     predict_button = st.button('Predict', key='predict_main')
 
+    custom_threshold = 0.7
+    
     if predict_button:
         # Preprocess input data
         preprocessed_input = preprocess_input(input_df)
         
-        # Make prediction
-        prediction = model.predict(preprocessed_input)
-        probability = model.predict_proba(preprocessed_input)[0][1] * 100  # Assuming index 1 is the probability of default
+        # Get probability of the positive class
+        probability = model.predict_proba(preprocessed_input)[0][1] * 100
+        
+        # Apply custom threshold to determine class
+        prediction = 1 if (probability / 100) > custom_threshold else 0
         
         # Convert prediction to interpretable output
-        risk_level = "high" if prediction[0] == 1 else "low"  # Assuming 1 indicates high risk
+        risk_level = "high" if prediction == 1 else "low"
         probability_text = f"{probability:.2f}%"
 
         # Display the prediction with styling
         st.subheader("Prediction Result")
-        st.write(f"The probability that you'll have high credit risk is {probability_text}. You have a {risk_level} credit risk.")
+        st.write(f"The model predicts that the credit risk is {risk_level}.")
 
     # Custom Styling with a border for the description
     st.markdown("""
