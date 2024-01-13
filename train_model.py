@@ -8,6 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from imblearn.over_sampling import SMOTE
 import joblib
+from sklearn.linear_model import Lasso
+from sklearn.metrics import mean_squared_error
 
 # Load the data
 data = pd.read_csv('data_cleaned.zip', compression='zip')
@@ -49,24 +51,46 @@ encoded_data = pd.concat([winsorized_data_zscore.drop(columns=['person_home_owne
 # Feature Scaling
 X = encoded_data.drop('loan_status', axis=1)  # Features
 y = encoded_data['loan_status']               # Target
+
+# Initializing the StandardScaler Z-Score Scalling
+scaler = StandardScaler()
+
+# Applying Standard Scaling to the features
+X_scaled = scaler.fit_transform(X)
+
+# Creating a DataFrame from the scaled features
+scaled_data = pd.DataFrame(X_scaled, columns=X.columns)
+scaled_data['loan_status'] = y  # Adding the target variable back correctly
+
+# lasso
+# Separate features and target
+X = scaled_data.drop('loan_status', axis=1)  # Ensure 'data' is your original DataFrame
+y = scaled_data['loan_status']
+
+# Feature scaling
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Perform PCA on the training features
-pca = PCA().fit(X_scaled)
-variance_threshold = 0.95
-cumulative_variance = pca.explained_variance_ratio_.cumsum()
-num_components = next(x[0] for x in enumerate(cumulative_variance) if x[1] > variance_threshold) + 1
-pca_18 = PCA(n_components=num_components)
-X_pca_18 = pca_18.fit_transform(X_scaled)
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
 
-# Create a DataFrame of the PCA results
-pca_df = pd.DataFrame(X_pca_18, columns=[f'PC{i+1}' for i in range(num_components)])
-pca_df['loan_status'] = y
+# Apply Lasso Regression
+lasso = Lasso(alpha=0.01)  # Adjust alpha as needed
+lasso.fit(X_train, y_train)
+
+# Evaluate the model
+y_pred = lasso.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+
+# Extracting the coefficients
+coefficients = lasso.coef_
+selected_features = X.columns[(coefficients != 0)]
+
+lasso_df = scaled_data[list(selected_features)+['loan_status']]
 
 # Splitting the PCA-transformed data into training and testing sets
-X_pca_train, X_pca_test, y_pca_train, y_pca_test = train_test_split(pca_df.drop('loan_status', axis=1),
-                                                                    pca_df['loan_status'], 
+X_pca_train, X_pca_test, y_pca_train, y_pca_test = train_test_split(lasso_df.drop('loan_status', axis=1),
+                                                                    lasso_df['loan_status'], 
                                                                     test_size=0.2, 
                                                                     random_state=42)
 
@@ -91,6 +115,6 @@ print(pd.DataFrame(report_rf).transpose())
 # Save the trained Random Forest model and other components using joblib for better compression
 joblib.dump(random_forest, 'loan_status_model.joblib', compress=3)
 joblib.dump(scaler, 'scaler.joblib', compress=3)
-joblib.dump(pca_18, 'pca.joblib', compress=3)
+joblib.dump(lasso, 'lasso.joblib', compress=3)
 joblib.dump(onehot_encoder, 'onehot_encoder.joblib', compress=3)
 joblib.dump(label_encoder, 'label_encoder.joblib', compress=3)

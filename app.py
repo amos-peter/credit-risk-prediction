@@ -9,18 +9,18 @@ from PIL import Image
 # Paths for the model, scaler, PCA, and encoders
 model_path = 'loan_status_model.joblib'
 scaler_path = 'scaler.joblib'
-pca_path = 'pca.joblib'
+lasso_path = 'lasso.joblib'
 onehot_encoder_path = 'onehot_encoder.joblib'
 label_encoder_path = 'label_encoder.joblib'
 
 # Load objects if they exist, else stop the app
-if not all(map(os.path.isfile, [model_path, scaler_path, pca_path, onehot_encoder_path, label_encoder_path])):
+if not all(map(os.path.isfile, [model_path, scaler_path, lasso_path, onehot_encoder_path, label_encoder_path])):
     st.error("Error: Necessary model files are missing.")
     st.stop()
 
 model = joblib.load(model_path)
 scaler = joblib.load(scaler_path)
-pca = joblib.load(pca_path)
+lasso = joblib.load(lasso_path)
 onehot_encoder = joblib.load(onehot_encoder_path)
 label_encoder = joblib.load(label_encoder_path)
 
@@ -49,10 +49,11 @@ def preprocess_input(input_data):
     # Scale the features using the loaded scaler
     scaled_features = scaler.transform(input_data)
 
-    # Apply PCA transformation
-    pca_features = pca.transform(scaled_features)
+    # Lasso
+    selected_features = [feature for feature, coef in zip(input_data.columns, lasso.coef_) if coef != 0]
+    lasso_selected_features = input_data[selected_features]
 
-    return pca_features
+    return lasso_selected_features
 
 
 def user_input_features():
@@ -138,7 +139,7 @@ def main():
 
         # Display the prediction with styling
         st.subheader("Prediction Result")
-        st.write(f"The probability that you'll have \"something\" is {probability_text}. You have a {risk_level} credit risk.")
+        st.write(f"The probability that you'll have high credit risk is {probability_text}. You have a {risk_level} credit risk.")
 
     # Custom Styling with a border for the description
     st.markdown("""
@@ -159,9 +160,9 @@ def main():
     st.markdown("""
     <div class="description">
         <p>Welcome to the Credit Risk Prediction Application. 
-        This tool is designed to help you understand the likelihood of a loan defaulting based on various factors 
-        such as age, income, employment history, and more. Simply adjust the parameters in the sidebar 
-        to match your details and click 'Predict' to see the outcome.</p>
+        This tool is designed to help you understand the likelihood of a loan defaulting based on various factors such as age, 
+        income, employment history, and more. 
+        Simply adjust the parameters in the sidebar to match your details and click 'Predict' to see the outcome.</p>
     </div>
     """, unsafe_allow_html=True)
 
