@@ -153,16 +153,17 @@ def main():
             padding: 10px;
             margin-bottom: 20px;
         }
-            st.markdown("""
+    st.markdown("""
         <style>
+        .main {
+            background-color: #000000;
+        }
         .description {
             border: 1px solid #4F8BF9;
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 20px;
-            color: #FFFFFF; /* White font color */
         }
-        /* Additional CSS to make all text in the app white, if required */
         body {
             color: #FFFFFF; /* White font color */
         }
